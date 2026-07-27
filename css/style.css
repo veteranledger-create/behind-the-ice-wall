@@ -1,0 +1,1338 @@
+/* ==========================================================================
+   Behind the Ice Wall — premium book landing page
+   Hand-authored production CSS (no framework runtime dependency)
+   ========================================================================== */
+
+/* ---------- Design tokens ---------- */
+:root {
+  --parchment-50: #faf6ee;
+  --parchment-100: #f4ecdb;
+  --ink-900: #0c1220;
+  --ink-800: #121a2b;
+  --ink-700: #1a2438;
+  --frost-100: #eef4f8;
+  --frost-300: #b9d0de;
+  --frost-400: #8fb2c8;
+  --seal-500: #6a7f5c;
+  --seal-600: #566a4a;
+
+  --bg: var(--parchment-50);
+  --bg-tint: var(--parchment-100);
+  --surface: var(--parchment-50);
+  --text: var(--ink-900);
+  --text-soft: rgb(18 26 43 / 78%);
+  /* 65% (not the 55% this started at) — the lighter value measured 4.06:1
+     against --bg, under the 4.5:1 WCAG AA minimum for the small caption-size
+     text this is used for (hero meta line, footer copyright, gallery hint). */
+  --text-faint: rgb(18 26 43 / 65%);
+  --border: rgb(220 199 156 / 55%);
+  --accent: var(--seal-600);
+  --hover-tint: rgb(0 0 0 / 4%);
+
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Lora", Georgia, "Times New Roman", serif;
+
+  --header-h: 4rem;
+  --max-w: 72rem;
+  --max-w-narrow: 48rem;
+  --max-w-prose: 42rem;
+  --radius: 0.5rem;
+  --radius-lg: 1rem;
+  --radius-full: 999px;
+
+  --shadow-sm: 0 1px 2px rgb(12 18 32 / 6%);
+  --shadow-md: 0 8px 24px -8px rgb(12 18 32 / 18%);
+  --shadow-lg: 0 20px 45px -12px rgb(12 18 32 / 28%);
+
+  /* Fluid spacing tokens shared by CTA groups and card grids so the same
+     gap scales continuously with viewport width instead of jumping at a
+     handful of hand-picked breakpoints. */
+  --gap-cta: clamp(0.75rem, 0.5rem + 1vw, 1.25rem);
+  --gap-cta-loose: clamp(1rem, 0.75rem + 1.5vw, 1.75rem);
+  --gap-grid: clamp(1.25rem, 1rem + 1.2vw, 2rem);
+
+  color-scheme: light;
+}
+
+html.dark {
+  --bg: var(--ink-900);
+  --bg-tint: var(--ink-800);
+  --surface: var(--ink-700);
+  --text: var(--frost-100);
+  --text-soft: rgb(238 244 248 / 82%);
+  --text-faint: rgb(238 244 248 / 55%);
+  --border: rgb(35 49 73 / 80%);
+  --accent: var(--frost-300);
+  --hover-tint: rgb(255 255 255 / 5%);
+  color-scheme: dark;
+}
+
+/* ---------- Reset & base ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--text);
+  background-image:
+    radial-gradient(circle at 20% 8%, rgb(0 0 0 / 3%) 0, transparent 40%),
+    radial-gradient(circle at 82% 60%, rgb(0 0 0 / 2.5%) 0, transparent 45%);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+html.dark body {
+  background-image:
+    radial-gradient(circle at 20% 8%, rgb(255 255 255 / 3%) 0, transparent 40%),
+    radial-gradient(circle at 82% 70%, rgb(120 150 190 / 5%) 0, transparent 45%);
+}
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+a {
+  color: inherit;
+}
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  margin: 0;
+  line-height: 1.15;
+  font-weight: 600;
+}
+p {
+  margin: 0;
+}
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+::selection {
+  background: var(--frost-400);
+  color: var(--ink-900);
+}
+
+/* paper-grain overlay */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+html.dark .grain {
+  opacity: 0.16;
+  mix-blend-mode: screen;
+}
+
+/* ---------- Layout helpers ---------- */
+.container {
+  max-width: var(--max-w);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 4vw, 2rem);
+  position: relative;
+}
+.container--narrow {
+  max-width: var(--max-w-narrow);
+}
+.container--prose {
+  max-width: var(--max-w-prose);
+}
+.section {
+  padding-block: clamp(4.5rem, 3.75rem + 4vw, 8rem);
+  border-top: 1px solid var(--border);
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease;
+}
+.section:first-of-type {
+  border-top: none;
+}
+.section--tinted {
+  background-color: var(--bg-tint);
+}
+.section--dark {
+  background-color: var(--ink-900);
+  color: var(--frost-100);
+  border-top: none;
+}
+html.dark .section--dark {
+  background-color: #000000a6;
+}
+/* Only needs to clear the fixed 4rem header with a bit of breathing room —
+   the old clamp scaled all the way up to 9.5rem, which on tall/wide screens
+   pushed the whole hero (and the fold) further down than the composition
+   needed. */
+.section--hero {
+  border-top: none;
+  padding-top: clamp(5rem, 4rem + 3.25vw, 7.5rem);
+  overflow: hidden;
+  position: relative;
+}
+
+.eyebrow {
+  display: block;
+  text-align: center;
+  margin-bottom: 1.1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.section--dark .eyebrow {
+  color: var(--frost-300);
+}
+.eyebrow--left {
+  text-align: left;
+}
+
+h2.section-title {
+  text-align: center;
+  font-size: clamp(1.85rem, 1.5rem + 1.6vw, 2.5rem);
+  margin-bottom: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+/* Used on titles that lead straight into content with no section-intro
+   paragraph between them — keeps that title-to-content gap consistent
+   instead of the mix of one-off inline margins it used to be. */
+.section-title--gap-lg {
+  margin-bottom: 2.75rem;
+}
+.section-intro {
+  max-width: 42rem;
+  margin-inline: auto;
+  text-align: center;
+  color: var(--text-soft);
+  line-height: 1.7;
+  margin-bottom: 4rem;
+  font-size: 1.05rem;
+}
+
+/* ---------- Buttons / links ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.75rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+  box-shadow: var(--shadow-md);
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+.btn:active {
+  transform: translateY(0) scale(0.98);
+}
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.btn--solid {
+  background-color: var(--ink-900);
+  color: var(--parchment-50);
+}
+html.dark .btn--solid {
+  background-color: var(--frost-100);
+  color: var(--ink-900);
+}
+
+.btn--invert {
+  background-color: var(--frost-100);
+  color: var(--ink-900);
+}
+
+.btn--outline {
+  background-color: transparent;
+  box-shadow: none;
+  border: 1px solid rgb(12 18 32 / 30%);
+  color: var(--text);
+}
+html.dark .btn--outline {
+  border-color: rgb(238 244 248 / 30%);
+}
+.btn--outline:hover {
+  background-color: rgb(0 0 0 / 5%);
+  box-shadow: none;
+}
+html.dark .btn--outline:hover {
+  background-color: rgb(255 255 255 / 6%);
+}
+
+.btn--small {
+  padding: 0.55rem 1.1rem;
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-sm);
+}
+.btn--small:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.link-quiet {
+  display: inline-block;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: text-decoration-color 0.2s ease;
+  /* Underline should always read against whatever text color it inherits —
+     it was previously hardcoded to a light frost tone that only worked on
+     the dark Buy section and went nearly invisible on light backgrounds
+     (e.g. "See pricing & details" in the Chapter One excerpt). currentColor
+     is the safe fallback; color-mix gives the subtle 40%-opacity look in
+     browsers that support it, on either background. */
+  text-decoration-color: currentColor;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+}
+.link-quiet:hover {
+  text-decoration-color: currentColor;
+}
+.link-quiet:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---------- Header / nav ---------- */
+.site-header {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 50;
+  height: var(--header-h);
+  background-color: rgb(250 246 238 / 82%);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease;
+}
+html.dark .site-header {
+  background-color: rgb(12 18 32 / 82%);
+}
+.site-header .container {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: clamp(0.75rem, 0.65rem + 1.1vw, 0.95rem);
+  border-radius: var(--radius);
+}
+.brand:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.brand svg {
+  flex-shrink: 0;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+.nav-link,
+.header-buy {
+  display: none;
+}
+.nav-link {
+  position: relative;
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: var(--text);
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+  padding-bottom: 2px;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 100%;
+  bottom: 0;
+  height: 1px;
+  background-color: currentColor;
+  transition: right 0.25s ease;
+}
+.nav-link:hover {
+  opacity: 1;
+}
+.nav-link:hover::after {
+  right: 0;
+}
+.nav-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.theme-toggle {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  transition: background-color 0.2s ease;
+}
+.theme-toggle:hover {
+  background-color: rgb(0 0 0 / 5%);
+}
+html.dark .theme-toggle:hover {
+  background-color: rgb(255 255 255 / 8%);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.theme-toggle .icon-moon {
+  display: block;
+}
+.theme-toggle .icon-sun {
+  display: none;
+}
+html.dark .theme-toggle .icon-moon {
+  display: none;
+}
+html.dark .theme-toggle .icon-sun {
+  display: block;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  transform: translateY(-4rem);
+  background-color: var(--ink-900);
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+@media (min-width: 640px) {
+  .header-buy {
+    display: inline-flex;
+  }
+}
+/* The text nav links only reappear at wide desktop widths — with no
+   hamburger menu, showing all five links plus the buy button and brand
+   name needs the container at (or near) its max-width to avoid clipping
+   the header, so this waits until 1280px rather than the 1024px content
+   breakpoint used elsewhere on the page. */
+@media (min-width: 1280px) {
+  .nav-link {
+    display: inline-flex;
+  }
+  .nav-links {
+    gap: 1.75rem;
+  }
+}
+
+/* ---------- Hero ---------- */
+.hero-compass {
+  position: absolute;
+  top: -7rem;
+  right: -7rem;
+  width: 22rem;
+  height: 22rem;
+  opacity: 0.045;
+  pointer-events: none;
+  animation: spin 50s linear infinite;
+}
+html.dark .hero-compass {
+  opacity: 0.05;
+}
+.hero-grid {
+  display: grid;
+  /* Top-aligned, not centered: once the cover sits beside a copy block
+     that's taller than it (true at almost every width — the text stack
+     runs eyebrow through CTAs through the meta line), centering the row
+     left the cover floating in the middle of a lot of empty space instead
+     of reading as part of the same composition. Anchoring both to the top
+     keeps the cover level with the eyebrow/title, the way an edited page
+     would set it. */
+  align-items: start;
+  /* Fluid gap: on the stacked mobile layout this is the only thing
+     separating the cover from the eyebrow/title below it, so it needs a
+     real floor (2.75rem) rather than the 1.75rem it had — that read as the
+     title crowding the bottom of the cover instead of a deliberate break
+     between them. Still opens up further once the two sit side by side. */
+  gap: clamp(2.75rem, 1.75rem + 2.5vw, 3.5rem);
+}
+/* The cover+copy pair moves to a side-by-side layout as soon as there's
+   genuine room for both without cramping the copy — a phone in landscape
+   or a small tablet already has it. Waiting for 1024px (or even 860px)
+   left the whole tablet range stuck with a fully stacked, unnecessarily
+   tall hero; 720px keeps the text column comfortably wide enough that the
+   "Behind the / Ice Wall" line break never wraps a third line. */
+@media (min-width: 720px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  }
+  .hero-copy {
+    order: 1;
+  }
+  .hero-image-wrap {
+    order: 2;
+    justify-content: flex-end;
+  }
+}
+/* cover shows first on mobile/tablet (image, then copy); copy leads once side by side */
+.hero-copy {
+  order: 2;
+}
+.hero-image-wrap {
+  order: 1;
+}
+.hero-copy .eyebrow {
+  text-align: left;
+  margin-bottom: 1rem;
+}
+.hero-title {
+  /* Capped lower than before (4.25rem, not 4.75rem) — past about 1280px
+     the cover's own width is already at its own cap, so letting the title
+     keep growing past that point just made the copy column pull further
+     ahead of the cover in height, widening the gap underneath it. */
+  font-size: clamp(2.75rem, 2rem + 2.9vw, 4.25rem);
+  line-height: 1.05;
+  margin-bottom: 1.125rem;
+  letter-spacing: -0.015em;
+  opacity: 0;
+  animation: rise 0.8s 0.1s ease forwards;
+}
+.hero-subtitle {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.15rem, 1.05rem + 0.4vw, 1.25rem);
+  line-height: 1.35;
+  margin-bottom: 1rem;
+  color: var(--text-soft);
+  opacity: 0;
+  animation: rise 0.8s 0.25s ease forwards;
+}
+.hero-desc {
+  font-size: clamp(1rem, 0.95rem + 0.15vw, 1.0625rem);
+  line-height: 1.6;
+  color: var(--text-soft);
+  max-width: 34rem;
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  animation: rise 0.8s 0.4s ease forwards;
+}
+.hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--gap-cta);
+  margin-bottom: 1.25rem;
+  opacity: 0;
+  animation: rise 0.8s 0.55s ease forwards;
+}
+.hero-meta {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-faint);
+  opacity: 0;
+  animation: rise 0.8s 0.7s ease forwards;
+}
+.hero-image-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+/* "book" is composed of three nested layers so each transform (parallax scroll,
+   static perspective tilt, gentle float) owns its own element and none of them
+   can clobber another. The artwork itself is never cropped or stretched:
+   .book-cover locks the exact 718:1024 cover ratio and uses object-fit: contain. */
+/* One continuous fluid curve from 320px to ~1280px+ (anchored at ~230px on
+   the smallest phones, ~340px from a small-desktop hero onward) replaces
+   what used to be two separate clamps stitched together at a 599px
+   breakpoint. That seam had a real bug: a 599px-wide phone rendered a
+   larger cover (~300px) than a 620px-wide small tablet (~240px), because
+   crossing the breakpoint dropped it back onto the un-bumped formula. */
+.book {
+  width: clamp(14.375rem, 12.1rem + 11.5vw, 21.25rem);
+  perspective: 2600px;
+  opacity: 0;
+  animation: fadeIn 1s 0.2s ease forwards;
+}
+.book-tilt {
+  /* barely-there tilt — a hint of dimension, not a mockup effect */
+  transform: rotateY(-3.5deg) rotateX(0.5deg);
+  transform-style: preserve-3d;
+}
+.book-float {
+  position: relative;
+  animation: drift 11s ease-in-out infinite;
+}
+.book-pages {
+  position: absolute;
+  top: 2.5%;
+  bottom: 2.5%;
+  right: -6px;
+  width: 7px;
+  background: repeating-linear-gradient(180deg, #f6efdd 0 2px, #e2d5b3 2px 3px);
+  border-radius: 0 3px 3px 0;
+  box-shadow: 1px 1px 4px rgb(12 18 32 / 14%);
+}
+.book-cover {
+  position: relative;
+  aspect-ratio: 718 / 1024;
+  border-radius: 2px;
+  overflow: hidden;
+  background-color: #e9e2d2;
+  /* restrained, mostly-below contact shadow — reads as resting, not floating */
+  box-shadow:
+    0 14px 24px -12px rgb(12 18 32 / 28%),
+    4px 6px 14px -10px rgb(12 18 32 / 16%);
+}
+html.dark .book-cover {
+  box-shadow:
+    0 14px 26px -12px rgb(0 0 0 / 55%),
+    4px 6px 16px -10px rgb(0 0 0 / 35%);
+}
+.book-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+.book-cover::after {
+  /* faint spine shading — an overlay only, the artwork underneath is untouched */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgb(0 0 0 / 12%),
+    transparent 6%,
+    transparent 100%
+  );
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Scroll reveal ---------- */
+/* .reveal only starts hidden if JS actually runs (html.js, set inline in <head>)
+   — so visitors without JavaScript always see full content, never a blank section. */
+.js .reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.8s ease,
+    transform 0.8s ease;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-group .reveal:nth-child(1) {
+  transition-delay: 0s;
+}
+.reveal-group .reveal:nth-child(2) {
+  transition-delay: 0.08s;
+}
+.reveal-group .reveal:nth-child(3) {
+  transition-delay: 0.16s;
+}
+.reveal-group .reveal:nth-child(4) {
+  transition-delay: 0.24s;
+}
+.reveal-group .reveal:nth-child(5) {
+  transition-delay: 0.32s;
+}
+.reveal-group .reveal:nth-child(6) {
+  transition-delay: 0.4s;
+}
+
+/* ---------- Card grids (Story Highlights, Main Characters, Features) ----------
+   Column count now falls out of available width via auto-fit/minmax instead
+   of being pinned to fixed 640px/1024px jumps — a card grid gains columns
+   the moment there's genuinely room for another one, at any viewport, and
+   never needs its own breakpoint tuned per section. min(100%, Xrem) keeps a
+   single very narrow column from ever overflowing a tighter container. */
+.grid {
+  display: grid;
+  gap: var(--gap-grid);
+}
+.grid--2 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+/* Features has 6 cards — an 18rem basis keeps it at a clean 3-across at
+   desktop widths (two even rows) instead of drifting to 4-across with a
+   ragged trailing row. */
+.grid--3 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+}
+.grid--4 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15.5rem), 1fr));
+}
+
+.card {
+  background-color: var(--surface);
+  padding: 1.75rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.35s ease,
+    border-color 0.35s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.55rem;
+  letter-spacing: -0.005em;
+}
+.card-eyebrow {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+.card-text {
+  font-size: 0.9375rem;
+  line-height: 1.7;
+  color: var(--text-soft);
+}
+/* display:block removes the few pixels of inline-SVG baseline gap that
+   otherwise threw off the icon's spacing from the title above it. */
+.card-icon {
+  display: block;
+  margin-bottom: 0.85rem;
+  color: var(--accent);
+}
+
+/* ---------- Chapter One excerpt ---------- */
+.excerpt-card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: clamp(1.75rem, 2vw, 2.5rem);
+}
+.excerpt-card p {
+  margin-bottom: 1.25rem;
+  line-height: 1.8;
+  color: var(--text-soft);
+}
+.excerpt-card p:last-child {
+  margin-bottom: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--text);
+}
+.excerpt-ctas {
+  margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--gap-cta) var(--gap-cta-loose);
+}
+
+/* ---------- Expedition timeline ---------- */
+.timeline {
+  position: relative;
+}
+.timeline-line {
+  position: absolute;
+  left: 1rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  border-left: 2px dashed rgb(106 127 92 / 35%);
+}
+html.dark .timeline-line {
+  border-left-color: rgb(185 208 222 / 30%);
+}
+.timeline-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+.timeline-item {
+  position: relative;
+  padding-left: 3.25rem;
+}
+.timeline-marker {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--parchment-50);
+  border: 2px solid var(--seal-500);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+html.dark .timeline-marker {
+  background-color: var(--ink-800);
+  border-color: var(--frost-300);
+}
+.timeline-tag {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+.timeline-title {
+  font-size: 1.25rem;
+  margin-bottom: 0.4rem;
+}
+.timeline-desc {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--text-soft);
+}
+.timeline-cta {
+  margin-top: 3.5rem;
+  text-align: center;
+}
+.timeline-cta p {
+  margin-bottom: 1.25rem;
+  color: var(--text-soft);
+}
+
+/* ---------- Synopsis ---------- */
+.prose {
+  max-width: var(--max-w-prose);
+  margin-inline: auto;
+}
+.prose p {
+  line-height: 1.8;
+  color: var(--text-soft);
+  margin-bottom: 1.25rem;
+  font-size: 1.05rem;
+}
+.prose p:last-child {
+  margin-bottom: 0;
+}
+
+/* ---------- Atmosphere images: horizontal swipe gallery ---------- */
+.gallery {
+  position: relative;
+}
+.gallery-track {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-inline: clamp(1.25rem, 4vw, 2rem);
+  padding-bottom: 0.5rem;
+  margin: 0 calc(-1 * clamp(1.25rem, 4vw, 2rem));
+  padding-inline: clamp(1.25rem, 4vw, 2rem);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.gallery-track::-webkit-scrollbar {
+  display: none;
+}
+.figure {
+  flex: 0 0 78%;
+  scroll-snap-align: center;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+@media (min-width: 640px) {
+  .figure {
+    flex-basis: 48%;
+  }
+}
+@media (min-width: 1024px) {
+  .figure {
+    flex-basis: 47%;
+  }
+}
+/* With only two illustrations today, 47% (vs. an earlier 34%) keeps the pair
+   filling the row on wide screens instead of leaving a large empty gap —
+   the track still scrolls/snaps normally if more images are added later. */
+.figure-img-wrap {
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+}
+.figure img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s ease;
+}
+.figure:hover img {
+  transform: scale(1.05);
+}
+.figure figcaption {
+  padding: 0.85rem 1rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  background-color: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.gallery-nav {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 44%;
+  transform: translateY(-50%);
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  color: var(--text);
+  z-index: 2;
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease;
+}
+.gallery-nav:hover {
+  transform: translateY(-50%) scale(1.06);
+}
+.gallery-nav:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.gallery-nav:disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+.gallery-nav--prev {
+  left: -1.25rem;
+}
+.gallery-nav--next {
+  right: -1.25rem;
+}
+@media (min-width: 768px) {
+  .gallery-nav {
+    display: flex;
+  }
+}
+.gallery-hint {
+  display: block;
+  text-align: center;
+  margin-top: 1.25rem;
+  font-size: 0.8rem;
+  color: var(--text-faint);
+  letter-spacing: 0.04em;
+}
+@media (min-width: 768px) {
+  .gallery-hint {
+    display: none;
+  }
+}
+
+/* ---------- Author's note ---------- */
+.pull-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  text-align: center;
+  font-size: clamp(1.25rem, 1.05rem + 0.8vw, 1.6rem);
+  line-height: 1.6;
+  max-width: var(--max-w-prose);
+  margin-inline: auto;
+}
+.pull-quote-attr {
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.9rem;
+  color: var(--frost-300);
+}
+
+/* ---------- Chapters accordion ---------- */
+.accordion {
+  border-top: 1px solid var(--border);
+}
+.accordion-item {
+  border-bottom: 1px solid var(--border);
+}
+.accordion-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.1rem 0;
+  text-align: left;
+  transition: background-color 0.2s ease;
+}
+/* A full-width row highlight on hover reads as "this is clickable" far more
+   clearly than the old opacity-dim, which visually read as a disabled state. */
+.accordion-trigger:hover {
+  background-color: var(--hover-tint);
+}
+.accordion-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.accordion-num {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  font-weight: 600;
+  width: 4rem;
+  flex-shrink: 0;
+}
+.accordion-title {
+  font-size: 1.125rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+.accordion-chev {
+  flex-shrink: 0;
+  transition: transform 0.3s ease;
+}
+.accordion-trigger[aria-expanded="true"] .accordion-chev {
+  transform: rotate(180deg);
+}
+.accordion-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+.accordion-panel p {
+  padding: 0 2rem 1.1rem 4rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-soft);
+}
+
+/* ---------- Tags (Who it's for) ---------- */
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+.tag {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  background-color: var(--bg-tint);
+  color: var(--text-soft);
+  border: 1px solid var(--border);
+}
+
+/* ---------- FAQ (native details/summary — zero JS) ---------- */
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.faq-item {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.faq-item summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  transition: background-color 0.2s ease;
+}
+.faq-item summary:hover {
+  background-color: var(--hover-tint);
+}
+.faq-item summary::-webkit-details-marker {
+  display: none;
+}
+.faq-item summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.faq-item .accordion-chev {
+  transition: transform 0.3s ease;
+}
+.faq-item[open] .accordion-chev {
+  transform: rotate(180deg);
+}
+.faq-item p {
+  padding: 0 1.25rem 1.25rem;
+  font-size: 0.9375rem;
+  line-height: 1.65;
+  color: var(--text-soft);
+}
+.faq-cta {
+  margin-top: 2.5rem;
+  text-align: center;
+}
+
+/* ---------- Buy ---------- */
+.price-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  background-color: rgb(255 255 255 / 4%);
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 24rem;
+}
+.price {
+  font-family: var(--font-display);
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+.price-fine {
+  font-size: 0.8rem;
+  color: rgb(238 244 248 / 75%);
+  text-align: center;
+}
+.buy-section {
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.buy-compass {
+  position: absolute;
+  bottom: -8rem;
+  left: -5rem;
+  width: 24rem;
+  height: 24rem;
+  opacity: 0.05;
+  animation: spin 50s linear infinite;
+}
+.buy-name {
+  font-size: clamp(1.85rem, 1.5rem + 1.6vw, 2.5rem);
+  margin-bottom: 0.75rem;
+  letter-spacing: -0.01em;
+}
+.buy-desc {
+  color: rgb(238 244 248 / 85%);
+  max-width: 30rem;
+  margin: 0 auto 2rem;
+}
+.buy-alt-link {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* ---------- Sticky mobile buy bar ---------- */
+/* Hidden by default (and on tablet/desktop, where the header + inline CTAs are
+   always reachable); shown only on phone widths, and only once JS toggles
+   .is-visible after the visitor scrolls past the hero. Never covers the
+   dedicated Buy section — the same JS hides it there. */
+.sticky-cta {
+  display: none;
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 60;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1.1rem calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  background-color: rgb(250 246 238 / 92%);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 -8px 24px -12px rgb(12 18 32 / 20%);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+html.dark .sticky-cta {
+  background-color: rgb(12 18 32 / 92%);
+}
+@media (max-width: 767px) {
+  .sticky-cta {
+    display: flex;
+  }
+}
+.sticky-cta.is-visible {
+  transform: translateY(0);
+}
+.sticky-cta-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+  min-width: 0;
+}
+.sticky-cta-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sticky-cta-price {
+  font-size: 0.8rem;
+  color: var(--text-soft);
+}
+.sticky-cta .btn {
+  flex-shrink: 0;
+}
+
+/* ---------- Footer ---------- */
+.site-footer {
+  text-align: center;
+  padding-block: 2.5rem;
+  border-top: 1px solid var(--border);
+}
+.site-footer p {
+  font-size: 0.875rem;
+  color: var(--text-soft);
+}
+.site-footer p + p {
+  font-size: 0.75rem;
+  color: var(--text-faint);
+  margin-top: 0.5rem;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  .hero-title,
+  .hero-subtitle,
+  .hero-desc,
+  .hero-ctas,
+  .hero-meta,
+  .book {
+    opacity: 1;
+    animation: none;
+  }
+  .hero-compass,
+  .buy-compass {
+    animation: none;
+  }
+  .book-float {
+    animation: none;
+  }
+  .sticky-cta {
+    transition: none;
+  }
+  .gallery-track {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
