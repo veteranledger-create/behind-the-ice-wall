@@ -75,6 +75,10 @@ html.dark {
 }
 html {
   scroll-behavior: smooth;
+  /* Defensive backstop: nothing on the page is meant to exceed 100% width,
+     but this guarantees no component regression can ever produce a
+     horizontal scrollbar on the page as a whole. */
+  overflow-x: hidden;
 }
 body {
   margin: 0;
@@ -910,12 +914,17 @@ html.dark .book-cover {
 }
 
 /* ---------- Chapter One excerpt: single reading page ----------
-   Paper tokens are intentionally fixed (not swapped by html.dark) — real
-   paper reads the same regardless of site theme. The surrounding section
-   uses .section--dark so the page glows against it like a book under a
-   reading lamp. Deliberately a single continuous page with no pagination
-   chrome, sliders, or per-page furniture — calmer and closer to reading an
-   actual printed excerpt than a simulated e-reader. */
+   Mobile-first. Paper tokens are intentionally fixed (not swapped by
+   html.dark) — real paper reads the same regardless of site theme. The
+   surrounding section uses .section--dark so the page glows against it like
+   a book under a reading lamp. Deliberately a single continuous page with no
+   pagination chrome, sliders, or per-page furniture — calmer and closer to
+   reading an actual printed excerpt than a simulated e-reader.
+
+   The page and the CTA both live inside the same .container.container--prose
+   as the eyebrow/title/intro above them (see index.html) — one padded box,
+   so all three share identical left/right edges at every width instead of
+   three separately-computed widths that can drift out of alignment. */
 :root {
   --paper-bg: #f6efdd;
   --paper-text: #241b12;
@@ -923,15 +932,27 @@ html.dark .book-cover {
   --paper-border: rgb(120 90 40 / 18%);
 }
 
+/* Tighter than the default 4rem .section-intro margin — that much air read
+   as dead space directly above the page on short mobile viewports. */
+.book-reader-intro {
+  margin-bottom: clamp(1.5rem, 4vw + 0.5rem, 2.75rem);
+}
+
 .book-page {
   position: relative;
-  max-width: 44rem;
-  margin: 1rem auto 0;
+  width: 100%;
+  min-width: 0;
+  margin-top: clamp(0.5rem, 2vw, 1rem);
   background-color: var(--paper-bg);
   color: var(--paper-text);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg), inset 0 0 40px rgb(120 90 40 / 6%);
-  padding: clamp(2rem, 4vw + 1rem, 3.75rem) clamp(1.5rem, 4vw, 3.5rem) clamp(2.25rem, 4vw, 3.5rem);
+  border-radius: clamp(0.5rem, 2vw, 1rem);
+  box-shadow: 0 14px 32px -14px rgb(12 18 32 / 25%), inset 0 0 30px rgb(120 90 40 / 6%);
+  /* Mobile-first padding: a real but modest page margin on phones, opening
+     up toward the desktop values as room allows. Never fixed-width, so it
+     can never push the box wider than its (already-padded) container. */
+  padding: clamp(1.5rem, 6vw, 3.25rem) clamp(1.1rem, 5vw, 3.25rem) clamp(1.75rem, 6vw, 3rem);
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 /* Faint paper grain, matching the site's existing .grain technique but
    scoped to the page surface and tinted warm instead of neutral. */
@@ -948,12 +969,20 @@ html.dark .book-cover {
 .book-page-body {
   position: relative;
   font-family: var(--font-body);
-  font-size: 1.0625rem;
-  line-height: 1.85;
+  /* ~15.2px on a 320px phone up to the original 17px on desktop — mobile no
+     longer inherits the flat desktop size, which is what was forcing
+     awkwardly short lines and extra scrolling on narrow screens. */
+  font-size: clamp(0.95rem, 0.87rem + 0.4vw, 1.0625rem);
+  line-height: 1.7;
+}
+@media (min-width: 46rem) {
+  .book-page-body {
+    line-height: 1.8;
+  }
 }
 .book-page-body p {
-  margin: 0 0 1.35em;
-  text-indent: 1.5em;
+  margin: 0 0 1.2em;
+  text-indent: 1.4em;
 }
 .book-page-body p:last-child {
   margin-bottom: 0;
@@ -969,7 +998,7 @@ html.dark .book-cover {
   text-align: center;
   font-size: 0.75rem;
   font-weight: 600;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--paper-text-soft);
   margin-bottom: 0.5rem;
@@ -977,25 +1006,37 @@ html.dark .book-cover {
 .book-chapter-title {
   text-align: center;
   font-family: var(--font-display);
-  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 1.85rem);
+  font-size: clamp(1.3rem, 1.1rem + 1vw, 1.85rem);
   font-weight: 600;
-  margin-bottom: 1.75rem;
+  margin-bottom: clamp(1.25rem, 4vw, 1.75rem);
 }
 .book-dropcap {
   float: left;
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 3.6em;
+  /* Scaled down on phones — at a ~40-character line width a full 3.6x drop
+     cap ate too much of the column and left only a word or two beside it. */
+  font-size: clamp(2.6em, 2.2em + 1.6vw, 3.6em);
   line-height: 0.82;
-  padding: 0.02em 0.09em 0 0;
+  padding: 0.02em 0.08em 0 0;
 }
 
-/* One calm, restrained CTA on the dark section chrome below the page —
-   a single primary button plus one small secondary text link, nothing
-   more. Deliberately not placed on the paper itself. */
+/* A single calm, restrained CTA on the dark section chrome below the page —
+   one primary button plus one small secondary text link, nothing more.
+   Deliberately not placed on the paper itself, but the short rule above it
+   visually bridges the two so the CTA reads as a continuation of the page
+   rather than an unrelated block that happens to follow it. */
 .book-continue {
   text-align: center;
-  margin-top: clamp(2.5rem, 3vw + 1.5rem, 4rem);
+  margin-top: clamp(1.5rem, 5vw, 2.5rem);
+}
+.book-continue::before {
+  content: "";
+  display: block;
+  width: 2.25rem;
+  height: 1px;
+  margin: 0 auto clamp(1.25rem, 4vw, 1.75rem);
+  background-color: rgb(238 244 248 / 25%);
 }
 .book-continue-eyebrow {
   font-family: var(--font-display);
