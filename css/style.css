@@ -304,6 +304,19 @@ html.dark .btn--outline:hover {
   box-shadow: var(--shadow-sm);
 }
 
+/* Reserved for the single most important CTA on the page (the hero primary
+   button) — larger and a touch heavier than the standard .btn so it reads as
+   "the" action without introducing a new accent color. */
+.btn--lg {
+  padding: 1.05rem 2.25rem;
+  font-size: 1.0625rem;
+  box-shadow: var(--shadow-lg);
+}
+.btn--lg:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+}
+
 /* Disabled state for CTAs that aren't live yet (e.g. a purchase link waiting
    on an external listing) — dims the button and blocks interaction/hover
    without needing a separate disabled variant of every .btn color. */
@@ -593,6 +606,31 @@ html.dark .hero-compass {
   opacity: 0;
   animation: rise 0.8s 0.55s ease forwards;
 }
+/* Quiet reassurance row under the primary CTA — deliberately smaller and
+   lower-contrast than the buttons above it so it reads as supporting detail,
+   not a second set of actions competing for attention. */
+.trust-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+  list-style: none;
+  margin: 0 0 1.1rem;
+  padding: 0;
+  opacity: 0;
+  animation: rise 0.8s 0.62s ease forwards;
+}
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
+  color: var(--text-soft);
+}
+.trust-badge svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
 .hero-meta {
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -811,6 +849,39 @@ html.dark .book-cover {
   color: var(--accent);
 }
 
+/* ---------- Reader reviews (populated + revealed via js/main.js) ---------- */
+.review-stars {
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  font-size: 0.9rem;
+  margin-bottom: 0.85rem;
+}
+.review-quote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  margin-bottom: 0.85rem;
+}
+.review-author {
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+/* Visually hides content while keeping it available to screen readers —
+   used for the numeric star rating alongside the decorative ★ glyphs. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---------- Buy on Amazon (secondary purchase option) ---------- */
 /* Keeps the two option cards centered and narrower than the section, with a
    smaller auto-fit basis than .grid--2 so both cards actually fit
@@ -838,31 +909,104 @@ html.dark .book-cover {
   white-space: normal;
 }
 
-/* ---------- Chapter One excerpt ---------- */
-.excerpt-card {
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: clamp(1.75rem, 2vw, 2.5rem);
+/* ---------- Chapter One excerpt: single reading page ----------
+   Paper tokens are intentionally fixed (not swapped by html.dark) — real
+   paper reads the same regardless of site theme. The surrounding section
+   uses .section--dark so the page glows against it like a book under a
+   reading lamp. Deliberately a single continuous page with no pagination
+   chrome, sliders, or per-page furniture — calmer and closer to reading an
+   actual printed excerpt than a simulated e-reader. */
+:root {
+  --paper-bg: #f6efdd;
+  --paper-text: #241b12;
+  --paper-text-soft: rgb(36 27 18 / 72%);
+  --paper-border: rgb(120 90 40 / 18%);
 }
-.excerpt-card p {
-  margin-bottom: 1.25rem;
-  line-height: 1.8;
-  color: var(--text-soft);
+
+.book-page {
+  position: relative;
+  max-width: 44rem;
+  margin: 1rem auto 0;
+  background-color: var(--paper-bg);
+  color: var(--paper-text);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg), inset 0 0 40px rgb(120 90 40 / 6%);
+  padding: clamp(2rem, 4vw + 1rem, 3.75rem) clamp(1.5rem, 4vw, 3.5rem) clamp(2.25rem, 4vw, 3.5rem);
 }
-.excerpt-card p:last-child {
+/* Faint paper grain, matching the site's existing .grain technique but
+   scoped to the page surface and tinted warm instead of neutral. */
+.book-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
+}
+.book-page-body {
+  position: relative;
+  font-family: var(--font-body);
+  font-size: 1.0625rem;
+  line-height: 1.85;
+}
+.book-page-body p {
+  margin: 0 0 1.35em;
+  text-indent: 1.5em;
+}
+.book-page-body p:last-child {
   margin-bottom: 0;
+}
+.book-page-body p.book-p-opener,
+.book-page-body p.book-chapter-label {
+  text-indent: 0;
+}
+.book-page-body em {
+  font-style: italic;
+}
+.book-chapter-label {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--paper-text-soft);
+  margin-bottom: 0.5rem;
+}
+.book-chapter-title {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 1.1rem + 1.2vw, 1.85rem);
+  font-weight: 600;
+  margin-bottom: 1.75rem;
+}
+.book-dropcap {
+  float: left;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 3.6em;
+  line-height: 0.82;
+  padding: 0.02em 0.09em 0 0;
+}
+
+/* One calm, restrained CTA on the dark section chrome below the page —
+   a single primary button plus one small secondary text link, nothing
+   more. Deliberately not placed on the paper itself. */
+.book-continue {
+  text-align: center;
+  margin-top: clamp(2.5rem, 3vw + 1.5rem, 4rem);
+}
+.book-continue-eyebrow {
   font-family: var(--font-display);
   font-style: italic;
-  color: var(--text);
+  color: var(--frost-300);
+  margin-bottom: 1.1rem;
 }
-.excerpt-ctas {
-  margin-top: 2rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--gap-cta) var(--gap-cta-loose);
+.book-continue-link {
+  display: block;
+  margin-top: 1rem;
+  color: var(--frost-100);
 }
 
 /* ---------- Expedition timeline ---------- */
@@ -1353,6 +1497,7 @@ html.dark .sticky-cta {
   .hero-subtitle,
   .hero-desc,
   .hero-ctas,
+  .trust-badges,
   .hero-meta,
   .book {
     opacity: 1;
