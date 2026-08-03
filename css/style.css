@@ -946,11 +946,14 @@ html.dark .book-cover {
   background-color: var(--paper-bg);
   color: var(--paper-text);
   border-radius: clamp(0.5rem, 2vw, 1rem);
-  box-shadow: 0 14px 32px -14px rgb(12 18 32 / 25%), inset 0 0 30px rgb(120 90 40 / 6%);
+  box-shadow:
+    0 14px 32px -14px rgb(12 18 32 / 25%),
+    inset 0 0 30px rgb(120 90 40 / 6%);
   /* Mobile-first padding: a real but modest page margin on phones, opening
      up toward the desktop values as room allows. Never fixed-width, so it
      can never push the box wider than its (already-padded) container. */
-  padding: clamp(1.5rem, 6vw, 3.25rem) clamp(1.1rem, 5vw, 3.25rem) clamp(1.75rem, 6vw, 3rem);
+  padding: clamp(1.5rem, 6vw, 3.25rem) clamp(1.1rem, 5vw, 3.25rem)
+    clamp(1.75rem, 6vw, 3rem);
   overflow-wrap: break-word;
   word-break: normal;
 }
@@ -1560,5 +1563,66 @@ html.dark .sticky-cta {
   * {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
+  }
+}
+/* ===== Mobile-safe excerpt layout fix ===== */
+.book-reader-section .container--prose {
+  width: 100%;
+  min-width: 0;
+}
+
+.book-page {
+  width: min(100%, 42rem);
+  max-width: 100%;
+  margin-inline: auto;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.book-page-body {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.book-page-body p {
+  hyphens: auto;
+}
+
+.book-continue {
+  width: min(100%, 42rem);
+  max-width: 100%;
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+.book-continue .btn,
+.book-continue .link-quiet {
+  max-width: 100%;
+}
+
+@media (max-width: 600px) {
+  .book-page {
+    padding: 1.25rem 1rem 1.5rem;
+    border-radius: 0.85rem;
+  }
+
+  .book-page-body {
+    font-size: 0.95rem;
+    line-height: 1.72;
+  }
+
+  .book-dropcap {
+    font-size: 2.3em;
+  }
+
+  .book-continue {
+    margin-top: 1.25rem;
+    padding-inline: 0;
+  }
+
+  .book-continue .btn {
+    white-space: normal;
+    text-wrap: balance;
   }
 }
