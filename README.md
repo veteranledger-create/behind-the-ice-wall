@@ -14,13 +14,13 @@ favicon.ico
 
 ## Before you deploy
 
-Every "buy" button links to:
+Every "buy" button on the page (header, hero, excerpt, timeline, FAQ, the Buy section, and the sticky mobile bar — 7 occurrences total) points to the same Gumroad product URL:
 
 ```
 https://dltools8.gumroad.com/l/behind-the-ice-wall
 ```
 
-If that URL ever changes, update it — it's a plain link, so a find-and-replace across `index.html` for that string is all that's needed (7 occurrences, including the sticky mobile buy bar).
+If that URL ever changes, a plain find-and-replace in `index.html` is all that's needed.
 
 ## Deploying
 

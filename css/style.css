@@ -304,6 +304,19 @@ html.dark .btn--outline:hover {
   box-shadow: var(--shadow-sm);
 }
 
+/* Disabled state for CTAs that aren't live yet (e.g. a purchase link waiting
+   on an external listing) — dims the button and blocks interaction/hover
+   without needing a separate disabled variant of every .btn color. */
+.btn--disabled,
+.btn--disabled:hover,
+.btn--disabled:active {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+  box-shadow: none;
+}
+
 .link-quiet {
   display: inline-block;
   font-size: 0.9rem;
@@ -796,6 +809,33 @@ html.dark .book-cover {
   display: block;
   margin-bottom: 0.85rem;
   color: var(--accent);
+}
+
+/* ---------- Buy on Amazon (secondary purchase option) ---------- */
+/* Keeps the two option cards centered and narrower than the section, with a
+   smaller auto-fit basis than .grid--2 so both cards actually fit
+   side-by-side at this container width instead of always stacking. */
+.amazon-buy-grid {
+  max-width: 38rem;
+  margin-inline: auto;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+/* Column layout with the button pinned to the bottom so both cards line up
+   even when one description wraps to more lines than the other. min-width:0
+   overrides the grid item's default min-content size — without it, the long
+   "Buy Paperback — Coming Soon" label forces the whole track (and page)
+   wider than the viewport on narrow screens. */
+.amazon-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+  text-align: center;
+  min-width: 0;
+}
+.amazon-card-btn {
+  width: 100%;
+  white-space: normal;
 }
 
 /* ---------- Chapter One excerpt ---------- */
